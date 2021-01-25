@@ -1,9 +1,7 @@
 package com.weemusic.android.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -68,6 +66,26 @@ class MainActivity : AppCompatActivity() {
                 rvFeed.layoutManager =
                     GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
             })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_sort, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.sort_album -> {
+                true
+            }
+            R.id.sort_price -> {
+                true
+            }
+            R.id.sort_title -> {
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     class AlbumsAdapter(val albums: List<JsonObject>) : RecyclerView.Adapter<AlbumsViewHolder>() {
