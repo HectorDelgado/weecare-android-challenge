@@ -112,6 +112,16 @@ class MainActivity : AppCompatActivity() {
                 rvFeed.adapter = adapter
                 true
             }
+            R.id.sort_artist -> {
+                val sortedAlbums = adapter.albums.sortedBy { albums ->
+                    albums.getAsJsonObject("im:artist")
+                        .getAsJsonPrimitive("label")
+                        .asString
+                }
+                adapter = AlbumsAdapter(sortedAlbums)
+                rvFeed.adapter = adapter
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
