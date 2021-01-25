@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.JsonObject
@@ -44,6 +46,9 @@ class MainActivity : AppCompatActivity() {
             .domainComponent(domainComponent)
             .build()
             .inject(this)
+
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
     }
 
     override fun onStart() {
@@ -61,7 +66,7 @@ class MainActivity : AppCompatActivity() {
                 adapter = AlbumsAdapter(it)
                 rvFeed.adapter = adapter
                 rvFeed.layoutManager =
-                    LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+                    GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
             })
     }
 
@@ -98,14 +103,21 @@ class MainActivity : AppCompatActivity() {
                 .getAsJsonObject("im:artist")
                 .getAsJsonPrimitive("label")
                 .asString
+            val price = album
+                .getAsJsonObject("im:price")
+                .getAsJsonObject("attributes")
+                .getAsJsonPrimitive("amount")
+                .asDouble
 
             val ivCover: ImageView = itemView.findViewById(R.id.ivCover)
             val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
             val tvArtist: TextView = itemView.findViewById(R.id.tvArtist)
+            val tvPrice: TextView = itemView.findViewById(R.id.tvPrice)
 
             Picasso.with(itemView.context).load(coverUrl).into(ivCover)
             tvTitle.text = title
             tvArtist.text = artist
+            tvPrice.text = "$$price"
         }
     }
 }
