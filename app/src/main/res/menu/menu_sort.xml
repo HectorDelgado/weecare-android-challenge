@@ -9,4 +9,7 @@
     <item
         android:id="@+id/sort_title"
         android:title="Title"/>
+    <item
+        android:id="@+id/sort_artist"
+        android:title="Artist"/>
 </menu>
