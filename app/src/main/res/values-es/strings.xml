@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WeeMusic</string>
+    <string name="top_albums">Mejores Álbumes</string>
+    <string name="album">Álbum</string>
+    <string name="price">Precio</string>
+    <string name="title">Título</string>
+    <string name="artist">Artista</string>
+    <string name="action_settings">Configuraciones</string>
+    <string name="album_cover">Portada del álbum</string>
+    <string name="newAlbum">NUEVO</string>
+</resources>

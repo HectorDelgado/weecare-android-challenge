@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/sort_album"
-        android:title="Album"/>
+        android:title="@string/album"/>
     <item
         android:id="@+id/sort_price"
-        android:title="Price"/>
+        android:title="@string/price"/>
     <item
         android:id="@+id/sort_title"
-        android:title="Title"/>
+        android:title="@string/title"/>
     <item
         android:id="@+id/sort_artist"
-        android:title="Artist"/>
+        android:title="@string/artist"/>
 </menu>

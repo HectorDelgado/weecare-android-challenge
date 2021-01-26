@@ -1,6 +1,5 @@
 package com.weemusic.android.domain
 
-import android.util.Log
 import com.google.gson.JsonObject
 import org.threeten.bp.LocalDate
 
@@ -22,8 +21,6 @@ data class Album(
          * @param json The JsonObject that will be parsed.
          *
          * @return The Album created from the json data.
-         *
-         * @exception
          */
         fun from(json: JsonObject): Album {
 

@@ -1,14 +1,12 @@
 package com.weemusic.android.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.JsonObject
 import com.jakewharton.threetenabp.AndroidThreeTen
@@ -19,11 +17,12 @@ import com.weemusic.android.core.DaggerDomainComponent
 import com.weemusic.android.core.DaggerNetworkComponent
 import com.weemusic.android.domain.Album
 import com.weemusic.android.domain.GetTopAlbumsUseCase
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.threeten.bp.LocalDate
 import javax.inject.Inject
 
@@ -51,6 +50,8 @@ class MainActivity : AppCompatActivity() {
 
         AndroidThreeTen.init(this)
 
+        // Set the toolbar as the SupportActionBar so the
+        // options menu can be added, remove the default title
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.title = ""
@@ -58,21 +59,43 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        topAlbumsDisposable = getTopAlbumsUseCase
-            .perform()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .map { response ->
-                response.getAsJsonObject("feed")
-                    .getAsJsonArray("entry")
-                    .map { it.asJsonObject }
-            }
-            .subscribe(Consumer {
-                adapter = AlbumsAdapter(it)
-                rvFeed.adapter = adapter
+
+        // Alternative to ReactiveX that uses coroutines
+        CoroutineScope(Dispatchers.IO).launch {
+            val response = getTopAlbumsUseCase
+                .performWithCoroutine()
+                .getAsJsonObject("feed")
+                .getAsJsonArray("entry")
+                .map { it.asJsonObject }
+
+            // Switch to main thread to update UI
+            withContext(Dispatchers.Main) {
+                updateRV(response)
                 rvFeed.layoutManager =
-                    GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
-            })
+                    GridLayoutManager(this@MainActivity, 2, GridLayoutManager.VERTICAL, false)
+            }
+        }
+
+//        topAlbumsDisposable = getTopAlbumsUseCase
+//            .perform()
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .map { response ->
+//                response.getAsJsonObject("feed")
+//                    .getAsJsonArray("entry")
+//                    .map { it.asJsonObject }
+//            }
+//            .subscribe(Consumer {
+//                adapter = AlbumsAdapter(it)
+//                rvFeed.adapter = adapter
+//                rvFeed.layoutManager =
+//                    GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
+//            })
+    }
+
+    private fun updateRV(data: List<JsonObject>) {
+        adapter = AlbumsAdapter(data)
+        rvFeed.adapter = adapter
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -83,13 +106,12 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.sort_album -> {
-                val sortedAlbum = adapter.albums.sortedBy { albums ->
+                val sortedAlbums = adapter.albums.sortedBy { albums ->
                     albums.getAsJsonObject("im:name")
                         .getAsJsonPrimitive("label")
                         .asString
                 }
-                adapter = AlbumsAdapter(sortedAlbum)
-                rvFeed.adapter = adapter
+                updateRV(sortedAlbums)
                 true
             }
             R.id.sort_price -> {
@@ -99,8 +121,7 @@ class MainActivity : AppCompatActivity() {
                         .getAsJsonPrimitive("amount")
                         .asDouble
                 }
-                adapter = AlbumsAdapter(sortedAlbums)
-                rvFeed.adapter = adapter
+                updateRV(sortedAlbums)
                 true
             }
             R.id.sort_title -> {
@@ -109,8 +130,7 @@ class MainActivity : AppCompatActivity() {
                         .getAsJsonPrimitive("label")
                         .asString
                 }
-                adapter = AlbumsAdapter(sortedAlbums)
-                rvFeed.adapter = adapter
+                updateRV(sortedAlbums)
                 true
             }
             R.id.sort_artist -> {
@@ -119,8 +139,7 @@ class MainActivity : AppCompatActivity() {
                         .getAsJsonPrimitive("label")
                         .asString
                 }
-                adapter = AlbumsAdapter(sortedAlbums)
-                rvFeed.adapter = adapter
+                updateRV(sortedAlbums)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -158,6 +177,7 @@ class MainActivity : AppCompatActivity() {
             tvTitle.text = newAlbum.title
             tvArtist.text = newAlbum.artist
             tvPrice.text = "$${newAlbum.price}"
+            // Display "new" text on albums released in the last 60 days
             tvNew.visibility = if (LocalDate.now().toEpochDay() - newAlbum.releaseDate.toEpochDay() <= 60)
                 View.VISIBLE else View.GONE
         }

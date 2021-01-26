@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">WeeMusic</string>
     <string name="action_settings">Settings</string>
+    <string name="top_albums">Top Albums</string>
+    <string name="album">Album</string>
+    <string name="price">Price</string>
+    <string name="title">Title</string>
+    <string name="artist">Artist</string>
+    <string name="newAlbum">NEW</string>
+    <string name="album_cover">Album Cover</string>
 </resources>
